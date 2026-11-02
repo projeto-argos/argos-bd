@@ -90,7 +90,7 @@
 		id_rebanho      UUID NOT NULL DEFAULT gen_random_uuid(),
 		nome            VARCHAR(60),
 		raca            VARCHAR(40),
-		finalidade      VARCHAR(20) DEFAULT 'Corte',
+		finalidade      VARCHAR(20) DEFAULT 'CORTE',
 		qtd_cabecas     INT DEFAULT 0,
 		ativo           BOOLEAN DEFAULT TRUE,
 		atualizado_em   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -277,7 +277,7 @@
 	-- ==============================================================================
 	CREATE TABLE USUARIO_PROPRIEDADE
 	(
-		id_user                 UUID NOT NULL,
+		id_usuario              UUID NOT NULL,
 		id_propriedade          UUID NOT NULL,
 		CONSTRAINT PK_USUARIO_PROPRIEDADE PRIMARY KEY (id_usuario, id_propriedade),
 		CONSTRAINT FK_USUARIO_PROPRIEDADE_USUARIO FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario),
