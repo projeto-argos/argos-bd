@@ -86,7 +86,7 @@
 		id_herd         UUID NOT NULL DEFAULT gen_random_uuid(),
 		herd_name       VARCHAR(60),
 		breed           VARCHAR(40),
-		purpose         VARCHAR(20) DEFAULT 'Beef',
+		purpose         VARCHAR(20) DEFAULT 'Corte',
 		head_count      INT DEFAULT 0,
 		active          BOOLEAN DEFAULT TRUE,
 		updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -94,8 +94,9 @@
 		CONSTRAINT PK_HERD PRIMARY KEY (id_herd),
 		CONSTRAINT FK_HERD_PROPERTY FOREIGN KEY (id_property) REFERENCES PROPERTY(id_property),
 		CONSTRAINT CK_HERD_HEAD_COUNT CHECK (head_count >= 0),
-		CONSTRAINT CK_HERD_PURPOSE CHECK (UPPER(TRIM(purpose)) = 'BEEF')
+		CONSTRAINT CK_HERD_PURPOSE CHECK (UPPER(TRIM(purpose)) = 'CORTE')
 	);
+	
 	-- ==============================================================================
 	-- 6. TABLE LOT 
 	-- ==============================================================================
@@ -113,8 +114,9 @@
 		CONSTRAINT FK_LOT_HERD FOREIGN KEY (id_herd) REFERENCES HERD(id_herd),
 		CONSTRAINT UK_LOT_CODE_HERD UNIQUE (id_herd, lot_code),
 		CONSTRAINT CK_LOT_HEAD_COUNT CHECK (head_count >= 0),
-		CONSTRAINT CK_LOT_CATEGORY CHECK (category IN ('FATTENING', 'BREEDING', 'REARING'))
+		CONSTRAINT CK_LOT_CATEGORY CHECK (category IN ('ENGORDA', 'CRIA', 'RECRIA'))
 	);
+	
 	-- ==============================================================================
 	-- 7. TABLE ANIMAL
 	-- ==============================================================================
@@ -256,9 +258,10 @@
 		CONSTRAINT FK_APPLICATION_USER FOREIGN KEY (id_user) REFERENCES "USER"(id_user),
 		CONSTRAINT FK_APPLICATION_MEDICATION_BATCH FOREIGN KEY (id_medication_batch) REFERENCES MEDICATION_BATCH(id_medication_batch),
 		CONSTRAINT FK_APPLICATION_LOT FOREIGN KEY (id_lot) REFERENCES LOT(id_lot),
-		CONSTRAINT CK_APPLICATION_ROUTE CHECK (route IS NULL OR UPPER(TRIM(route)) IN ('INTRAMUSCULAR', 'SUBCUTANEOUS', 'ORAL', 'TOPICAL', 'INTRAVENOUS')),
+		CONSTRAINT CK_APPLICATION_ROUTE CHECK (route IS NULL OR UPPER(TRIM(route)) IN ('INTRAMUSCULAR', 'SUBCUTANEA', 'ORAL', 'TOPICA', 'INTRAVENOSA')),
 		CONSTRAINT CK_APPLICATION_HEAD_COUNT CHECK (treated_head_count > 0)
 	);
+	
 	-- ==============================================================================
 	-- 14. TABLE USER_PROPERTY
 	-- ==============================================================================
