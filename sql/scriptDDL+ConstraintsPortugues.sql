@@ -1,9 +1,8 @@
--- ==============================================================================
+	-- ==============================================================================
 	-- HABILITAÇÃO DE EXTENSÕES
 	-- ==============================================================================
 	CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 	CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 	-- ==============================================================================
 	-- 1. TABELA ENDERECO
 	-- ==============================================================================
@@ -18,7 +17,6 @@
 		complemento     TEXT,
 		ativo           BOOLEAN DEFAULT TRUE,
 		atualizado_em   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
 		CONSTRAINT PK_ENDERECO PRIMARY KEY (id_endereco),
 		CONSTRAINT CK_ENDERECO_CEP CHECK (cep IS NULL OR cep ~ '^[0-9]{8}\s*$')
 	);
@@ -38,7 +36,6 @@
 		data_nascimento DATE,
 		ativo           BOOLEAN DEFAULT TRUE,
 		atualizado_em   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
 		CONSTRAINT PK_USUARIO PRIMARY KEY (id_usuario),
 		CONSTRAINT UK_USUARIO_CPF UNIQUE (cpf),
 		CONSTRAINT UK_USUARIO_EMAIL UNIQUE (email),
@@ -59,7 +56,6 @@
 		senha           CHAR(60) NOT NULL,
 		ativo           BOOLEAN DEFAULT TRUE,
 		atualizado_em   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
 		CONSTRAINT PK_ADMIN PRIMARY KEY (id_admin),
 		CONSTRAINT UK_ADMIN_CPF UNIQUE (cpf),
 		CONSTRAINT UK_ADMIN_EMAIL UNIQUE (email),
@@ -78,12 +74,10 @@
 		telefone        VARCHAR(20),
 		ativo           BOOLEAN DEFAULT TRUE,
 		atualizado_em   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-		id_usuario      UUID NOT NULL,
-		id_endereco     UUID,
-
+		id_endereco     UUID NOT NULL,
 		CONSTRAINT PK_PROPRIEDADE PRIMARY KEY (id_propriedade),
-		CONSTRAINT FK_PROPRIEDADE_USUARIO FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario),
 		CONSTRAINT FK_PROPRIEDADE_ENDERECO FOREIGN KEY (id_endereco) REFERENCES ENDERECO(id_endereco),
+		CONSTRAINT UK_PROPRIEDADE_ENDERECO UNIQUE (id_endereco),
 		CONSTRAINT CK_PROPRIEDADE_CNPJ CHECK (cnpj IS NULL OR cnpj ~ '^[0-9]{14}\s*$'),
 		CONSTRAINT CK_PROPRIEDADE_TELEFONE CHECK (telefone IS NULL OR telefone ~ '^[0-9]{10,11}\s*$')
 	);
@@ -94,14 +88,13 @@
 	CREATE TABLE REBANHO
 	(
 		id_rebanho      UUID NOT NULL DEFAULT gen_random_uuid(),
-		nome            VARCHAR(100),
-		raca            VARCHAR(50),
-		finalidade      VARCHAR(50) DEFAULT 'Corte',
+		nome            VARCHAR(60),
+		raca            VARCHAR(40),
+		finalidade      VARCHAR(20) DEFAULT 'CORTE',
 		qtd_cabecas     INT DEFAULT 0,
 		ativo           BOOLEAN DEFAULT TRUE,
 		atualizado_em   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		id_propriedade  UUID NOT NULL,
-
 		CONSTRAINT PK_REBANHO PRIMARY KEY (id_rebanho),
 		CONSTRAINT FK_REBANHO_PROPRIEDADE FOREIGN KEY (id_propriedade) REFERENCES PROPRIEDADE(id_propriedade),
 		CONSTRAINT CK_REBANHO_QTD_CABECAS CHECK (qtd_cabecas >= 0),
@@ -121,7 +114,6 @@
 		ativo           BOOLEAN DEFAULT TRUE,
 		atualizado_em   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		id_rebanho      UUID NOT NULL,
-
 		CONSTRAINT PK_LOTE PRIMARY KEY (id_lote),
 		CONSTRAINT FK_LOTE_REBANHO FOREIGN KEY (id_rebanho) REFERENCES REBANHO(id_rebanho),
 		CONSTRAINT UK_LOTE_CODIGO_REBANHO UNIQUE (id_rebanho, codigo_lote),
@@ -147,7 +139,6 @@
 		atualizado_em       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		id_lote             UUID NOT NULL,
 		id_lote_origem      UUID,
-
 		CONSTRAINT PK_ANIMAL PRIMARY KEY (id_animal),
 		CONSTRAINT UK_ANIMAL_BRINCO_LOTE UNIQUE (id_lote, brinco),
 		CONSTRAINT FK_ANIMAL_LOTE FOREIGN KEY (id_lote) REFERENCES LOTE(id_lote),
@@ -168,7 +159,6 @@
 		ativo                BOOLEAN DEFAULT TRUE,
 		atualizado_em        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		id_animal            UUID NOT NULL,
-
 		CONSTRAINT PK_PERIODO_CARENCIA PRIMARY KEY (id_carencia),
 		CONSTRAINT FK_CARENCIA_ANIMAL FOREIGN KEY (id_animal) REFERENCES ANIMAL(id_animal),
 		CONSTRAINT CK_CARENCIA_DATAS CHECK (data_fim_carencia IS NULL OR data_fim_carencia >= data_inicio_carencia)
@@ -187,7 +177,6 @@
 		ativo           BOOLEAN DEFAULT TRUE,
 		atualizado_em   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		id_endereco     UUID,
-
 		CONSTRAINT PK_FORNECEDOR PRIMARY KEY (id_fornecedor),
 		CONSTRAINT UK_FORNECEDOR_CNPJ UNIQUE (cnpj),
 		CONSTRAINT FK_FORNECEDOR_ENDERECO FOREIGN KEY (id_endereco) REFERENCES ENDERECO(id_endereco),
@@ -206,12 +195,11 @@
 		unidade_medida          VARCHAR(10),
 		principio_ativo         VARCHAR(80),
 		indicacao               TEXT,
-		carencia_indicada_dias INT DEFAULT 0,
+		carencia_indicada_dias  INT DEFAULT 0,
 		categoria_terapeutica   TEXT,
 		ativo                   BOOLEAN DEFAULT TRUE,
 		atualizado_em           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		id_fornecedor           UUID NOT NULL,
-
 		CONSTRAINT PK_MEDICAMENTO PRIMARY KEY (id_medicamento),
 		CONSTRAINT FK_MEDICAMENTO_FORNECEDOR FOREIGN KEY (id_fornecedor) REFERENCES FORNECEDOR(id_fornecedor),
 		CONSTRAINT CK_MEDICAMENTO_CARENCIA CHECK (carencia_indicada_dias >= 0)
@@ -231,7 +219,6 @@
 		id_medicamento      UUID NOT NULL,
 		ativo               BOOLEAN DEFAULT TRUE,
 		atualizado_em       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
 		CONSTRAINT PK_LOTE_MEDICAMENTO PRIMARY KEY (id_lote_medicamento),
 		CONSTRAINT FK_LOTE_MED_MEDICAMENTO FOREIGN KEY (id_medicamento) REFERENCES MEDICAMENTO(id_medicamento),
 		CONSTRAINT CK_LOTE_MED_VALIDADE CHECK (data_validade IS NULL OR data_validade >= data_fabricacao),
@@ -251,7 +238,6 @@
 		ativo                   BOOLEAN DEFAULT TRUE,
 		atualizado_em           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		id_lote_medicamento     UUID NOT NULL,
-
 		CONSTRAINT PK_ESTOQUE_MEDICAMENTO PRIMARY KEY (id_estoque_medicamento),
 		CONSTRAINT FK_ESTOQUE_LOTE_MEDICAMENTO FOREIGN KEY (id_lote_medicamento) REFERENCES LOTE_MEDICAMENTO(id_lote_medicamento),
 		CONSTRAINT CK_ESTOQUE_QTD_DISPONIVEL CHECK (quantidade_disponivel >= 0),
@@ -278,11 +264,22 @@
 		id_usuario              UUID NOT NULL,
 		id_lote_medicamento     UUID NOT NULL,
 		id_lote                 UUID NOT NULL,
-
 		CONSTRAINT PK_APLICACAO PRIMARY KEY (id_aplicacao),
 		CONSTRAINT FK_APLICACAO_USUARIO FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario),
 		CONSTRAINT FK_APLICACAO_LOTE_MEDICAMENTO FOREIGN KEY (id_lote_medicamento) REFERENCES LOTE_MEDICAMENTO(id_lote_medicamento),
 		CONSTRAINT FK_APLICACAO_LOTE FOREIGN KEY (id_lote) REFERENCES LOTE(id_lote),
 		CONSTRAINT CK_APLICACAO_VIA CHECK (via_administracao IS NULL OR UPPER(TRIM(via_administracao)) IN ('INTRAMUSCULAR', 'SUBCUTANEA', 'ORAL', 'TOPICA', 'INTRAVENOSA')),
 		CONSTRAINT CK_APLICACAO_QTD_CABECAS CHECK (qtd_cabecas_aplicadas > 0)
+	);
+	
+	-- ==============================================================================
+	-- 14. TABELA USUARIO_PROPRIEDADE
+	-- ==============================================================================
+	CREATE TABLE USUARIO_PROPRIEDADE
+	(
+		id_usuario              UUID NOT NULL,
+		id_propriedade          UUID NOT NULL,
+		CONSTRAINT PK_USUARIO_PROPRIEDADE PRIMARY KEY (id_usuario, id_propriedade),
+		CONSTRAINT FK_USUARIO_PROPRIEDADE_USUARIO FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario),
+		CONSTRAINT FK_USUARIO_PROPRIEDADE_PROPRIEDADE FOREIGN KEY (id_propriedade) REFERENCES PROPRIEDADE(id_propriedade)
 	);
